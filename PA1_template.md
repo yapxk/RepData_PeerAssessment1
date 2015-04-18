@@ -1,47 +1,74 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r, echo = TRUE}
+
+```r
 setwd("C:/Users/Skynet/Documents")
 activity <- read.csv("activity.csv")
 ```
 
 ## What is mean total number of steps taken per day?
-```{r, echo = TRUE}
+
+```r
 totalstepsperday <- tapply(activity$steps, activity$date, sum)
 hist(totalstepsperday, main = "Total number of steps per day", 
     xlab = "Number of steps per day", ylab = "Interval", col = "blue")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
 #Mean total number of steps taken per day:
 mean(totalstepsperday, na.rm = T)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 #Median total number of steps taken per day:
 median(totalstepsperday, na.rm = T)
+```
 
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
-```{r, echo = TRUE}
+
+```r
 AvgStepsPerInterval <- tapply(activity$steps, activity$interval, mean, na.rm = T)
 plot(AvgStepsPerInterval, type = "l", main = ("Average Steps x Interval"), 
     ylab = "# of steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 #Interval with the maximum number of steps:
 
 seq(along = AvgStepsPerInterval)[AvgStepsPerInterval == max(AvgStepsPerInterval)]
 ```
 
+```
+## [1] 104
+```
+
 ## Imputing missing values
 
 Total missing values in dataset:
-```{r, echo=TRUE}
-sum(as.numeric(is.na(activity$steps)))
 
+```r
+sum(as.numeric(is.na(activity$steps)))
+```
+
+```
+## [1] 2304
+```
+
+```r
 # Methid for filling in all of the missing values in the dataset.
 # 1.Get average steps per interval as vector and repeat for each of the 61 days
 sub_AvgStepsPerInterval <- as.vector(AvgStepsPerInterval)
@@ -62,12 +89,26 @@ complete_data_steps<- tapply(complete_data$steps, complete_data$date,
     sum)
 hist(complete_data_steps, main = "Total number of steps per day", 
     xlab = "Number of steps per day", ylab = "Interval", col = "blue")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
+```r
 #Mean total number of steps taken per day: 
 mean(complete_data_steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 #Median total number of steps taken per day:
 median(complete_data_steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 The mean values are identical except the median which has a difference of 1 from the estimates from the first part of the assignment
