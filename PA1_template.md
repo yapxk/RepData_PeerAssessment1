@@ -11,6 +11,9 @@ activity <- read.csv("activity.csv")
 ## What is mean total number of steps taken per day?
 
 ```r
+#Calculate the total number of steps taken per day
+#If you do not understand the difference between a histogram and a barplot, research the difference between them. Make a histogram of the total number of steps taken each day
+
 totalstepsperday <- tapply(activity$steps, activity$date, sum)
 hist(totalstepsperday, main = "Total number of steps per day", 
     xlab = "Number of steps per day", ylab = "Interval", col = "blue")
@@ -19,6 +22,8 @@ hist(totalstepsperday, main = "Total number of steps per day",
 ![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
 
 ```r
+#Calculate and report the mean and median of the total number of steps taken per day
+
 #Mean total number of steps taken per day:
 mean(totalstepsperday, na.rm = T)
 ```
@@ -38,22 +43,27 @@ median(totalstepsperday, na.rm = T)
 
 ## What is the average daily activity pattern?
 
+
 ```r
-AvgStepsPerInterval <- tapply(activity$steps, activity$interval, mean, na.rm = T)
-plot(AvgStepsPerInterval, type = "l", main = ("Average Steps x Interval"), 
-    ylab = "# of steps")
+#Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+
+steps.interval <- aggregate(steps ~ interval, data = activity, FUN = mean)
+plot(steps.interval, type = "l", main = ("Average daily activity"), 
+    ylab = "Interval", xlab ="Number of steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
 ```r
+#Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
 #Interval with the maximum number of steps:
-
-seq(along = AvgStepsPerInterval)[AvgStepsPerInterval == max(AvgStepsPerInterval)]
+steps.interval <- aggregate(steps ~ interval, data = activity, FUN = mean)
+steps.interval$interval[which.max(steps.interval$steps)]
 ```
 
 ```
-## [1] 104
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -69,33 +79,26 @@ sum(as.numeric(is.na(activity$steps)))
 ```
 
 ```r
-# Methid for filling in all of the missing values in the dataset.
-# 1.Get average steps per interval as vector and repeat for each of the 61 days
-sub_AvgStepsPerInterval <- as.vector(AvgStepsPerInterval)
-sub_AvgStepsPerInterval <- rep(sub_AvgStepsPerInterval, 61)
+# Method for filling in all of the missing values in the dataset.
+# Using the average of 5-minute intervals as fillers for missing values.
 
-# 2.To fill in missing data by setting it to places that are missing
-sub_AvgStepsPerInterval[!is.na(activity$steps)] = 1
-
-# 3.Get the steps data as vector
-sub_Data <- as.vector(activity$steps)
-# 4.To fill in missing data by setting it to places that are missing
-sub_Data[is.na(sub_Data)] = 1
-complete_data <- activity
-complete_data$steps <- sub_AvgStepsPerInterval * sub_Data
+activity <- merge(activity, steps.interval, by = "interval", suffixes = c("", 
+    ".y"))
+nas <- is.na(activity$steps)
+activity$steps[nas] <- activity$steps.y[nas]
+activity <- activity[, c(1:3)]
 
 #Histogram of the total number of steps taken each day
-complete_data_steps<- tapply(complete_data$steps, complete_data$date, 
-    sum)
-hist(complete_data_steps, main = "Total number of steps per day", 
-    xlab = "Number of steps per day", ylab = "Interval", col = "blue")
+steps.date <- aggregate(steps ~ date, data = activity, FUN = sum)
+hist(steps.date$steps, main = "Total number of steps per day", 
+   xlab = "Number of steps per day", ylab = "Interval", col = "blue")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
 ```r
 #Mean total number of steps taken per day: 
-mean(complete_data_steps)
+mean(steps.date$steps)
 ```
 
 ```
@@ -104,7 +107,7 @@ mean(complete_data_steps)
 
 ```r
 #Median total number of steps taken per day:
-median(complete_data_steps)
+median(steps.date$steps)
 ```
 
 ```
@@ -113,7 +116,7 @@ median(complete_data_steps)
 
 The mean values are identical except the median which has a difference of 1 from the estimates from the first part of the assignment
 
-The impact of the missing data on histogram is that the number (Interval) of data in the middle of histogram has increased as the missing data has been filled with new data with the mean.
+The impact of the missing data on histogram is that the number of steps in the middle of histogram has increased as the missing data has been filled with new data with the mean.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -137,7 +140,6 @@ for (type in c("weekday", "weekend")) {
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
-
 
 On weekdays, it's apparant that more activities occurs in the morning period due to working lifestyle while on the weekends, the activities are more equally distributed throughout the day perhaps due to having more free time or non working days.
 
