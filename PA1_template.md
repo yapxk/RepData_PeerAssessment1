@@ -117,3 +117,27 @@ The impact of the missing data on histogram is that the number (Interval) of dat
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+```r
+# Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+
+days <- weekdays(as.Date(activity$date)) %in% c('Saturday','Sunday')
+# Create the factor variable in the dataset in 2 levels
+activity$weekday <- factor(days, labels = c("weekday", "weekend"))
+
+# Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+par(mfrow = c(2, 1))
+for (type in c("weekday", "weekend")) {
+    steps.type <- aggregate(steps ~ interval, data = activity, subset = activity$weekday == 
+        type, FUN = mean)
+    par(mai = c(0, 1, 1, 0))
+    plot(steps.type, type = "l", main = type)
+}
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+
+On weekdays, it's apparant that more activities occurs in the morning period due to working lifestyle while on the weekends, the activities are more equally distributed throughout the day perhaps due to having more free time or non working days.
+
